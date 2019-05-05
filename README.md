@@ -23,12 +23,12 @@ SPAM=EGGS
 
 *foo* will then be able to access this environment defined in *.env* file.
 
-You might also specify another dotenv file with *-file* option:
+You might also specify another dotenv file with *-env* option:
 
 ```bash
-$ dotrun -file /etc/foo.env foo
+$ dotrun -env /etc/foo.env foo
 ```
 
-This way, *dotrun* won't load environment in *.env* file in current directory but in specified file instead.
+This way, *dotrun* won't load environment from *.env* file in current directory but from specified file instead.
 
 *Enjoy!*

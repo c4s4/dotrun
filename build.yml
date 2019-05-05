@@ -1,6 +1,6 @@
 # NeON build file (http://github.com/c4s4/neon)
 
-extends: [golang, git]
+extends: [golang, git, changelog]
 
 properties:
   LIBRARIES:
@@ -34,3 +34,9 @@ targets:
       then:
       - throw: "Test failed:\n={output}"
     - print: 'Test OK'
+
+  release:
+    doc: Perform a release
+    depends: [test, version, archive]
+    steps:
+    - super:
