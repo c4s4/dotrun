@@ -1,6 +1,6 @@
 # NeON build file (http://github.com/c4s4/neon)
 
-extends: [golang, git]
+extends: [golang, git, changelog]
 
 properties:
   LIBRARIES:
