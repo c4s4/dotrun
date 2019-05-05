@@ -15,7 +15,7 @@ targets:
     doc: Run an integration test
     depends: bin
     steps:
-    # test without -file option
+    # test without -env option
     - write: '={BUILD_DIR}/test'
       text:  "#!/bin/sh\necho $FOO\necho $SPAM"
     - chmod: '={BUILD_DIR}/test'
@@ -26,7 +26,7 @@ targets:
     - if: 'output != "BAR\nEGGS"'
       then:
       - throw: "Test failed:\n={output}"
-    # test with -file option
+    # test with -env option
     - $:  ['={BUILD_DIR}/dotrun', '-env', '.env2', '={BUILD_DIR}/test']
       1=: output
       1x: true

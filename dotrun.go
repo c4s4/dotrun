@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	help = `Usage: dotrun [-file .env] command args...
+	help = `Usage: dotrun [-env .env] command args...
 -env file   Alternative dotenv file
 command     The command to run
 args        The command arguments`
