@@ -34,3 +34,9 @@ targets:
       then:
       - throw: "Test failed:\n={output}"
     - print: 'Test OK'
+
+  release:
+    doc: Perform a release
+    depends: [test, version, archive]
+    steps:
+    - super:
