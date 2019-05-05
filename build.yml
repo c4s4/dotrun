@@ -27,7 +27,7 @@ targets:
       then:
       - throw: "Test failed:\n={output}"
     # test with -file option
-    - $:  ['={BUILD_DIR}/dotrun', '-file', '.env2', '={BUILD_DIR}/test']
+    - $:  ['={BUILD_DIR}/dotrun', '-env', '.env2', '={BUILD_DIR}/test']
       1=: output
       1x: true
     - if: 'output != "FOO\nSPAM"'

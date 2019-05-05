@@ -14,9 +14,9 @@ import (
 
 const (
 	help = `Usage: dotrun [-file .env] command args...
--file file   Alternative dotenv file
-command      The command to run
-args         The command arguments`
+-env file   Alternative dotenv file
+command     The command to run
+args        The command arguments`
 )
 
 // Execute runs command with given arguments and return exit value.
@@ -64,9 +64,9 @@ func main() {
 	var file = ".env"
 	var command string
 	var args []string
-	if os.Args[1] == "-file" {
+	if os.Args[1] == "-env" {
 		if len(os.Args) < 3 {
-			println("ERROR you must specify dotenv file after '-file' option")
+			println("ERROR you must specify dotenv file after '-env' option")
 			os.Exit(-1)
 		}
 		file = os.Args[2]
