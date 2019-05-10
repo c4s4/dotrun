@@ -1,5 +1,9 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 1.0.1
+  date:    2019-05-10
+  summary: Fixed documentation
+
 - version: 1.0.0
   date:    2019-05-05
   summary: First release
