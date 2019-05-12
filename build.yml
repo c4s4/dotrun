@@ -3,8 +3,8 @@
 extends: [golang, git, changelog]
 
 properties:
-  LIBRARIES:
-  - github.com/joho/godotenv
+  WEB_HOME:  'casa@sweetohm.net:/home/web/dist/={NAME}'
+  LIBRARIES: [github.com/joho/godotenv]
 
 environment:
   GOPATH: '${GOPATH}:={_BASE}'
@@ -35,8 +35,17 @@ targets:
       - throw: "Test failed:\n={output}"
     - print: 'Test OK'
 
+  deploy:
+    doc: Deploy installation script and binaries
+    depends: binaries
+    steps:
+    - print: 'Deploying dotrun binaries...'
+    - $: ['scp', 'install', =WEB_HOME]
+    - 'binaries = join(find(".", BUILD_DIR+"/bin/*"), " ")'
+    - $: 'scp ={binaries} ={WEB_HOME}'
+
   release:
     doc: Perform a release
-    depends: [test, version, archive]
+    depends: [test, version, archive, deploy]
     steps:
     - super:
