@@ -26,7 +26,7 @@ Otherwise, you can download latest binary archive at <https://github.com/c4s4/do
 
 ## Usage
 
-To run command *foo* (with its arguments) in the environment defined in *.env* file in current directory, type:
+To run command *foo* with its arguments in the environment defined in *.env* file in current directory, type:
 
 ```bash
 $ dotrun foo args...
@@ -41,12 +41,16 @@ SPAM=EGGS
 
 *foo* will then be able to access this environment defined in *.env* file.
 
-You might also specify another dotenv file with *-env* option before the command to run:
+You can specify another dotenv file with `-env file` option before the command to run:
 
 ```bash
 $ dotrun -env /etc/foo.env foo args...
 ```
 
-This way, *dotrun* won't load environment from *.env* file in current directory but from specified file instead.
+You can also load multiple dotenv files, repeating `-env file` option on command line :
+
+```bash
+$ dotrun -env /etc/foo.env -env /etc/bar.env foo args...
+```
 
 *Enjoy!*
