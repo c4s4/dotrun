@@ -53,4 +53,6 @@ You can also load multiple dotenv files, repeating `-env file` option on command
 $ dotrun -env /etc/foo.env -env /etc/bar.env foo args...
 ```
 
+The environment files are evaluated in the order of the command line, so that in previous example variables defined in *bar.env* would overwrite those defined in *foo.env*.
+
 *Enjoy!*
