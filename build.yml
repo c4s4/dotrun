@@ -43,6 +43,6 @@ targets:
 
   release:
     doc: Perform a release
-    depends: [checks, test, archive, deploy]
+    depends: [check, test, archive, deploy]
     steps:
     - super:
