@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -14,10 +15,37 @@ import (
 
 const (
 	help = `Usage: dotrun [-env .env] command args...
--env file   Alternative dotenv file
+-env file   Alternative dotenv file (mais be repeated to load multiple files)
 command     The command to run
 args        The command arguments`
 )
+
+// Help tells if we should print help and exit
+var Help bool
+
+// EnvFiles is a list of environment files passed on command line
+var EnvFiles Strings
+
+// Strings is the type for list of strings
+type Strings []string
+
+// String representation for a list of strings
+func (s *Strings) String() string {
+	return "[" + strings.Join(*s, ", ") + "]"
+}
+
+// Set append a string to the list
+func (s *Strings) Set(path string) error {
+	*s = append(*s, ExpandPath(path))
+	return nil
+}
+
+// ParseCommandLine parses command line
+func init() {
+	flag.Bool("-help", false, "Print help and exit")
+	flag.Var(&EnvFiles, "env", "Environment file to load")
+	flag.Parse()
+}
 
 // Execute runs command with given arguments and return exit value.
 func Execute(command string, args ...string) int {
@@ -42,7 +70,8 @@ func Execute(command string, args ...string) int {
 	return exit
 }
 
-func expandPath(path string) string {
+// ExpandPath expands given path wit user home directory
+func ExpandPath(path string) string {
 	usr, _ := user.Current()
 	dir := usr.HomeDir
 	if strings.HasPrefix(path, "~/") {
@@ -52,37 +81,24 @@ func expandPath(path string) string {
 }
 
 func main() {
-	if os.Args[1] == "-help" {
+	if Help {
 		println(help)
 		os.Exit(0)
 	}
-	if len(os.Args) < 2 {
+	if EnvFiles == nil {
+		EnvFiles = []string{".env"}
+	}
+	if len(flag.Args()) < 1 {
 		println("ERROR you must pass command to run on command line")
-		println(help)
-		os.Exit(-1)
+		os.Exit(1)
 	}
-	var file = ".env"
-	var command string
-	var args []string
-	if os.Args[1] == "-env" {
-		if len(os.Args) < 3 {
-			println("ERROR you must specify dotenv file after '-env' option")
-			os.Exit(-1)
+	command := flag.Args()[0]
+	args := flag.Args()[1:]
+	for _, file := range EnvFiles {
+		err := godotenv.Load(file)
+		if err != nil {
+			println(fmt.Sprintf("ERROR loading dotenv file '%s': %v", file, err))
 		}
-		file = os.Args[2]
-		command = os.Args[3]
-		args = os.Args[4:]
-	} else {
-		command = os.Args[1]
-		args = os.Args[2:]
 	}
-	file = expandPath(file)
-	err := godotenv.Load(file)
-	if err != nil {
-		println(fmt.Sprintf("ERROR loading dotenv file '%s': %v", file, err))
-	}
-	exit := Execute(command, args...)
-	if exit != 0 {
-		os.Exit(exit)
-	}
+	os.Exit(Execute(command, args...))
 }
