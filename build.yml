@@ -1,10 +1,10 @@
 # NeON build file (http://github.com/c4s4/neon)
 
 extends: [golang, git, changelog]
+expose:  [LIBRARIES, clean, check, test, release]
 
 properties:
   LIBRARIES: [github.com/joho/godotenv]
-  WEB_HOME:  'casa@sweetohm.net:/home/web/dist/={NAME}'
 
 environment:
   GOPATH: '${GOPATH}:={_BASE}'
