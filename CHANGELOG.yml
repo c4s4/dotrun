@@ -1,5 +1,9 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 1.0.4
+  date:    2019-05-25
+  summary: Fixed a bug while overloading environments
+
 - version: 1.0.3
   date:    2019-05-15
   summary: Can specify multiple env files on command line
