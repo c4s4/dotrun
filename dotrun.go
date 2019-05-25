@@ -95,7 +95,7 @@ func main() {
 	command := flag.Args()[0]
 	args := flag.Args()[1:]
 	for _, file := range EnvFiles {
-		err := godotenv.Load(file)
+		err := godotenv.Overload(file)
 		if err != nil {
 			println(fmt.Sprintf("ERROR loading dotenv file '%s': %v", file, err))
 		}

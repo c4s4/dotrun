@@ -40,6 +40,13 @@ targets:
     - if: 'output != "BAR\nEGGS\nTITI"'
       then:
       - throw: "Test failed:\n={output}"
+    # test with two -env options overwrite
+    - $:  ['={BUILD_DIR}/dotrun', '-env', '.env', '-env', '.env2', '={BUILD_DIR}/test']
+      1=: output
+      1x: true
+    - if: 'output != "FOO\nSPAM"'
+      then:
+      - throw: "Test failed:\n={output}"
     - print: 'Test OK'
 
   deploy:
