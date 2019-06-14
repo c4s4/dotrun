@@ -1,50 +1,50 @@
 # NeON build file (http://github.com/c4s4/neon)
 
-extends: [golang, git, changelog]
+extends: [golang, changelog]
+expose:  [LIBRARIES, clean, check, test, release]
 
 properties:
   LIBRARIES: [github.com/joho/godotenv]
-  WEB_HOME:  'casa@sweetohm.net:/home/web/dist/={NAME}'
 
 environment:
   GOPATH: '${GOPATH}:={_BASE}'
 
 targets:
 
-  test:
+  int:
     doc: Run an integration test
     depends: bin
     steps:
     # test without -env option
     - write: '={BUILD_DIR}/test'
-      text:  "#!/bin/sh\necho $FOO\necho $SPAM\necho $TOTO"
+      text:  "#!/bin/sh\necho $FOO\necho $BAR\necho $BAZ"
     - chmod: '={BUILD_DIR}/test'
       mode:  0755
     - $:  ['={BUILD_DIR}/dotrun', '={BUILD_DIR}/test']
       1=: output
       1x: true
-    - if: 'output != "BAR\nEGGS"'
+    - if: 'output != "SPAM\nEGGS"'
       then:
       - throw: "Test failed:\n={output}"
     # test with -env option
     - $:  ['={BUILD_DIR}/dotrun', '-env', '.env2', '={BUILD_DIR}/test']
       1=: output
       1x: true
-    - if: 'output != "FOO\nSPAM"'
+    - if: 'output != "TOTO\nTITI"'
       then:
       - throw: "Test failed:\n={output}"
     # test with two -env options
     - $:  ['={BUILD_DIR}/dotrun', '-env', '.env', '-env', '.env3', '={BUILD_DIR}/test']
       1=: output
       1x: true
-    - if: 'output != "BAR\nEGGS\nTITI"'
+    - if: 'output != "SPAM\nEGGS\nTUTU"'
       then:
       - throw: "Test failed:\n={output}"
     # test with two -env options overwrite
     - $:  ['={BUILD_DIR}/dotrun', '-env', '.env', '-env', '.env2', '={BUILD_DIR}/test']
       1=: output
       1x: true
-    - if: 'output != "FOO\nSPAM"'
+    - if: 'output != "TOTO\nTITI"'
       then:
       - throw: "Test failed:\n={output}"
     - print: 'Test OK'

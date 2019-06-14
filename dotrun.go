@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -20,31 +19,44 @@ command     The command to run
 args        The command arguments`
 )
 
-// Help tells if we should print help and exit
-var Help bool
-
-// EnvFiles is a list of environment files passed on command line
-var EnvFiles Strings
-
-// Strings is the type for list of strings
-type Strings []string
-
-// String representation for a list of strings
-func (s *Strings) String() string {
-	return "[" + strings.Join(*s, ", ") + "]"
-}
-
-// Set append a string to the list
-func (s *Strings) Set(path string) error {
-	*s = append(*s, ExpandPath(path))
-	return nil
-}
-
-// ParseCommandLine parses command line
-func init() {
-	flag.Bool("-help", false, "Print help and exit")
-	flag.Var(&EnvFiles, "env", "Environment file to load")
-	flag.Parse()
+// ParseCommandLine parses command line and returns:
+// - options: passed on command line
+// Returns:
+// - boolean telling if we should print help
+// - list of environment file to load
+// - command to run
+// - command arguments
+// - error if any
+func ParseCommandLine(options []string) (bool, []string, string, []string, error) {
+	nextOption := true
+	nextEnvFile := false
+	var help bool
+	var envFiles []string
+	var command string
+	var args []string
+	for _, arg := range options {
+		if nextOption {
+			if nextEnvFile {
+				envFiles = append(envFiles, arg)
+				nextEnvFile = false
+			} else {
+				if arg == "-help" {
+					help = true
+				} else if arg == "-env" {
+					nextEnvFile = true
+				} else {
+					command = arg
+					nextOption = false
+				}
+			}
+		} else {
+			args = append(args, arg)
+		}
+	}
+	if !help && command == "" {
+		return false, nil, "", nil, fmt.Errorf("You must pass command to run on command line")
+	}
+	return help, envFiles, command, args, nil
 }
 
 // Execute runs command with given arguments and return exit value.
@@ -81,20 +93,19 @@ func ExpandPath(path string) string {
 }
 
 func main() {
-	if Help {
+	help, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
+	if err != nil {
+		println(err.Error())
+		os.Exit(1)
+	}
+	if help {
 		println(help)
 		os.Exit(0)
 	}
-	if EnvFiles == nil {
-		EnvFiles = []string{".env"}
+	if envFiles == nil {
+		envFiles = []string{".env"}
 	}
-	if len(flag.Args()) < 1 {
-		println("ERROR you must pass command to run on command line")
-		os.Exit(1)
-	}
-	command := flag.Args()[0]
-	args := flag.Args()[1:]
-	for _, file := range EnvFiles {
+	for _, file := range envFiles {
 		err := godotenv.Overload(file)
 		if err != nil {
 			println(fmt.Sprintf("ERROR loading dotenv file '%s': %v", file, err))
