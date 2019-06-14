@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	help = `Usage: dotrun [-env .env] command args...
+	// Help is the command line help
+	Help = `Usage: dotrun [-env .env] command args...
 -env file   Alternative dotenv file (mais be repeated to load multiple files)
 command     The command to run
 args        The command arguments`
@@ -99,7 +100,7 @@ func main() {
 		os.Exit(1)
 	}
 	if help {
-		println(help)
+		println(Help)
 		os.Exit(0)
 	}
 	if envFiles == nil {
