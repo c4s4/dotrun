@@ -11,7 +11,7 @@ environment:
 
 targets:
 
-  test:
+  int:
     doc: Run an integration test
     depends: bin
     steps:
