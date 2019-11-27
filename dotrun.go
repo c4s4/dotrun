@@ -110,6 +110,7 @@ func main() {
 		err := godotenv.Overload(file)
 		if err != nil {
 			println(fmt.Sprintf("ERROR loading dotenv file '%s': %v", file, err))
+			os.Exit(2)
 		}
 	}
 	os.Exit(Execute(command, args...))
