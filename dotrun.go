@@ -12,9 +12,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// Version as printed -version option
+var Version = "UNKNOWN"
+
 const (
 	// Help is the command line help
-	Help = `Usage: dotrun [-env .env] command args...
+	Help = `Usage: dotrun [-version] [-env .env] command args...
+-version    Print version and exit
 -env file   Alternative dotenv file (mais be repeated to load multiple files)
 command     The command to run
 args        The command arguments`
@@ -28,9 +32,10 @@ args        The command arguments`
 // - command to run
 // - command arguments
 // - error if any
-func ParseCommandLine(options []string) (bool, []string, string, []string, error) {
+func ParseCommandLine(options []string) (bool, bool, []string, string, []string, error) {
 	nextOption := true
 	nextEnvFile := false
+	var version bool
 	var help bool
 	var envFiles []string
 	var command string
@@ -41,7 +46,9 @@ func ParseCommandLine(options []string) (bool, []string, string, []string, error
 				envFiles = append(envFiles, arg)
 				nextEnvFile = false
 			} else {
-				if arg == "-help" {
+				if arg == "-version" {
+					version = true
+				} else if arg == "-help" {
 					help = true
 				} else if arg == "-env" {
 					nextEnvFile = true
@@ -54,10 +61,10 @@ func ParseCommandLine(options []string) (bool, []string, string, []string, error
 			args = append(args, arg)
 		}
 	}
-	if !help && command == "" {
-		return false, nil, "", nil, fmt.Errorf("You must pass command to run on command line")
+	if !version && !help && command == "" {
+		return false, false, nil, "", nil, fmt.Errorf("You must pass command to run on command line")
 	}
-	return help, envFiles, command, args, nil
+	return version, help, envFiles, command, args, nil
 }
 
 // Execute runs command with given arguments and return exit value.
@@ -94,10 +101,14 @@ func ExpandPath(path string) string {
 }
 
 func main() {
-	help, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
+	version, help, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
 	if err != nil {
 		println(err.Error())
 		os.Exit(1)
+	}
+	if version {
+		println(Version)
+		os.Exit(0)
 	}
 	if help {
 		println(Help)
