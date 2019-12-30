@@ -55,4 +55,21 @@ dotrun -env /etc/foo.env -env /etc/bar.env foo args...
 
 The environment files are evaluated in the order of the command line, so that in previous example variables defined in *bar.env* would overwrite those defined in *foo.env*.
 
+## Important Note
+
+Let's say you have following *.env* file:
+
+```bash
+FOO=BAR
+```
+
+And run command `dotrun echo $FOO`. You would probably expect *BAR*, but this is not the case. Because `$FOO` will be evaluated before running this command and replaced with its value on command line. To have expected behavior, you must run:
+
+```bash
+$ dotrun 'echo $FOO'
+BAR
+```
+
+In this case, `$FOO` won't be evaluated by the shell because it is protected by single quotes. Then *dotrun* will run command `echo $FOO` in a shell.
+
 *Enjoy!*

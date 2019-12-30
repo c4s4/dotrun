@@ -69,6 +69,10 @@ func ParseCommandLine(options []string) (bool, bool, []string, string, []string,
 
 // Execute runs command with given arguments and return exit value.
 func Execute(command string, args ...string) int {
+	if len(args) == 0 {
+		args = []string{"-c", command}
+		command = "sh"
+	}
 	cmd := exec.Command(command, args...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
