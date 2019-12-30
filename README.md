@@ -1,6 +1,6 @@
 # DotRun Command
 
-DotRun command loads dotenv file, loads its environment and runs given command in that environment.
+DotRun command reads dotenv file, loads its environment and runs given command in that environment.
 
 ## Installation
 
@@ -39,9 +39,9 @@ FOO=BAR
 SPAM=EGGS
 ```
 
-*foo* will then be able to access this environment defined in *.env* file.
+Command *foo* will then be able to access the environment defined in *.env* file.
 
-You can specify another dotenv file with `-env file` option before the command to run:
+You can specify another dotenv file with `-env file` option:
 
 ```bash
 dotrun -env /etc/foo.env foo args...
@@ -55,7 +55,7 @@ dotrun -env /etc/foo.env -env /etc/bar.env foo args...
 
 The environment files are evaluated in the order of the command line, so that in previous example variables defined in *bar.env* would overwrite those defined in *foo.env*.
 
-## Important Note
+## Shell
 
 Let's say you have following *.env* file:
 
@@ -63,13 +63,31 @@ Let's say you have following *.env* file:
 FOO=BAR
 ```
 
-And run command `dotrun echo $FOO`. You would probably expect *BAR*, but this is not the case. Because `$FOO` will be evaluated before running this command and replaced with its value on command line. To have expected behavior, you must run:
+You would probably expect following:
 
 ```bash
-$ dotrun 'echo $FOO'
+$ dotrun echo $FOO
 BAR
 ```
 
-In this case, `$FOO` won't be evaluated by the shell because it is protected by single quotes. Then *dotrun* will run command `echo $FOO` in a shell.
+But this is not what happens:
+
+```bash
+$ dotrun echo $FOO
+
+```
+
+Because `$FOO` will be evaluated by the shell before running dotrun and replaced with its value on command line. To have expected behavior, you must run:
+
+```bash
+$ dotrun -shell 'echo $FOO'
+BAR
+```
+
+In this case, command `echo $FOO` will not be evaluated until it runs in a shell. This shell will run in environment defined with dotenv file passed on command line and will print expected value on the console.
+
+Note that you could try to obtain expected result with command `dotrun 'echo $FOO'`, but this won't work because dotrun will try to run command `echo $FOO` which doesn't exist.
+
+On Unix, dotrun will run command in a shell with `sh -c command` and `cmd /c command` on Windows.
 
 *Enjoy!*

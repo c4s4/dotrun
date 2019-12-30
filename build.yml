@@ -46,4 +46,18 @@ targets:
     - if: 'output != "TOTO\nTITI"'
       then:
       - throw: "Test failed:\n={output}"
+    # test with shell
+    - $:  ['={BUILD_DIR}/dotrun', '-shell', 'echo $FOO']
+      1=: output
+      1x: true
+    - if: 'output != "SPAM"'
+      then:
+      - throw: "Test failed:\n={output}"
+    # test with shell in more than one piece
+    - $:  ['={BUILD_DIR}/dotrun', '-shell', 'echo', '$FOO']
+      1=: output
+      1x: true
+    - if: 'output != "SPAM"'
+      then:
+      - throw: "Test failed:\n={output}"
     - print: 'OK Integration tests'

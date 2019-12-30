@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 )
@@ -17,9 +18,10 @@ var Version = "UNKNOWN"
 
 const (
 	// Help is the command line help
-	Help = `Usage: dotrun [-version] [-env .env] command args...
+	Help = `Usage: dotrun [-version] [-env .env] [-shell] command args...
 -version    Print version and exit
--env file   Alternative dotenv file (mais be repeated to load multiple files)
+-env file   Alternative dotenv file (may be repeated to load multiple files)
+-shell      Use to a shell to run command
 command     The command to run
 args        The command arguments`
 )
@@ -27,16 +29,19 @@ args        The command arguments`
 // ParseCommandLine parses command line and returns:
 // - options: passed on command line
 // Returns:
+// - boolean telling if we should print version
 // - boolean telling if we should print help
+// - boolean telling if we run command in a shell
 // - list of environment file to load
 // - command to run
 // - command arguments
 // - error if any
-func ParseCommandLine(options []string) (bool, bool, []string, string, []string, error) {
+func ParseCommandLine(options []string) (bool, bool, bool, []string, string, []string, error) {
 	nextOption := true
 	nextEnvFile := false
 	var version bool
 	var help bool
+	var shell bool
 	var envFiles []string
 	var command string
 	var args []string
@@ -50,6 +55,8 @@ func ParseCommandLine(options []string) (bool, bool, []string, string, []string,
 					version = true
 				} else if arg == "-help" {
 					help = true
+				} else if arg == "-shell" {
+					shell = true
 				} else if arg == "-env" {
 					nextEnvFile = true
 				} else {
@@ -62,16 +69,23 @@ func ParseCommandLine(options []string) (bool, bool, []string, string, []string,
 		}
 	}
 	if !version && !help && command == "" {
-		return false, false, nil, "", nil, fmt.Errorf("You must pass command to run on command line")
+		return false, false, false, nil, "", nil, fmt.Errorf("You must pass command to run on command line")
 	}
-	return version, help, envFiles, command, args, nil
+	return version, help, shell, envFiles, command, args, nil
 }
 
 // Execute runs command with given arguments and return exit value.
-func Execute(command string, args ...string) int {
-	if len(args) == 0 {
-		args = []string{"-c", command}
-		command = "sh"
+func Execute(shell bool, command string, args ...string) int {
+	if shell {
+		args = append([]string{command}, args...)
+		command = strings.Join(args, " ")
+		if runtime.GOOS != "windows" {
+			args = append([]string{"-c"}, command)
+			command = "sh"
+		} else {
+			args = append([]string{"/c"}, command)
+			command = "cmd"
+		}
 	}
 	cmd := exec.Command(command, args...)
 	cmd.Stderr = os.Stderr
@@ -133,7 +147,7 @@ func LoadEnv(filename string) error {
 }
 
 func main() {
-	version, help, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
+	version, help, shell, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
 	if err != nil {
 		println(err.Error())
 		os.Exit(1)
@@ -156,5 +170,5 @@ func main() {
 			os.Exit(2)
 		}
 	}
-	os.Exit(Execute(command, args...))
+	os.Exit(Execute(shell, command, args...))
 }
