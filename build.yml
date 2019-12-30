@@ -6,10 +6,6 @@ expose:  [fmt, check, test, release]
 configuration: '~/.neon/github.yml'
 # GITHUB_TOKEN: 'abcdefghijklmnopqrstuvwxyz0123456789'
 
-properties:
-  LIBRARIES:
-  - github.com/joho/godotenv
-
 targets:
 
   test:
@@ -49,5 +45,5 @@ targets:
       1x: true
     - if: 'output != "TOTO\nTITI"'
       then:
-      - throw: "ERROR Integration tests:\n={output}"
+      - throw: "Test failed:\n={output}"
     - print: 'OK Integration tests'

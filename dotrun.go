@@ -1,15 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
 	"syscall"
-
-	"github.com/joho/godotenv"
 )
 
 // Version as printed -version option
@@ -100,6 +100,34 @@ func ExpandPath(path string) string {
 	return path
 }
 
+// LoadEnv loads environment in given file
+func LoadEnv(filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	for {
+		bytes, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		line := strings.TrimSpace(string(bytes))
+		if line[0] == '#' {
+			continue
+		}
+		index := strings.Index(line, "=")
+		if index < 0 {
+			return fmt.Errorf("bad environment line: '%s'", line)
+		}
+		name := strings.TrimSpace(line[:index])
+		value := strings.TrimSpace(line[index+1:])
+		os.Setenv(name, value)
+	}
+	return nil
+}
+
 func main() {
 	version, help, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
 	if err != nil {
@@ -118,7 +146,7 @@ func main() {
 		envFiles = []string{".env"}
 	}
 	for _, file := range envFiles {
-		err := godotenv.Overload(file)
+		err := LoadEnv(file)
 		if err != nil {
 			println(fmt.Sprintf("ERROR loading dotenv file '%s': %v", file, err))
 			os.Exit(2)
