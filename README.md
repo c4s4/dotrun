@@ -1,6 +1,11 @@
 # DotRun Command
 
-DotRun command reads dotenv file, loads its environment and runs given command in that environment.
+[![Build Status](https://travis-ci.org/c4s4/dotrun.svg?branch=master)](https://travis-ci.org/c4s4/dotrun)
+[![Code Quality](https://goreportcard.com/badge/github.com/c4s4/dotrun)](https://goreportcard.com/report/github.com/c4s4/dotrun)
+[![Codecov](https://codecov.io/gh/c4s4/dotrun/branch/master/graph/badge.svg)](https://codecov.io/gh/c4s4/dotrun)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+DotRun command loads dotenv file, loads its environment and runs given command in that environment.
 
 ## Installation
 
