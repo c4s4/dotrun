@@ -10,7 +10,7 @@ targets:
 
   test:
     doc: Run tests and integration test
-    depends: [version-test, bin]
+    depends: [version-test, build]
     steps:
     - super:
     - print: '\=== Running Integration tests'
