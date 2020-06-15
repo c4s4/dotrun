@@ -14,13 +14,13 @@ DotRun command loads dotenv file, loads its environment and runs given command i
 Unix users may download and install latest *dotrun* release with command:
 
 ```bash
-sh -c "$(curl http://sweetohm.net/dist/dotrun/install)"
+sh -c "$(curl https://sweetohm.net/dist/dotrun/install)"
 ```
 
 If *curl* is not installed on you system, you might run:
 
 ```bash
-sh -c "$(wget -O - http://sweetohm.net/dist/dotrun/install)"
+sh -c "$(wget -O - https://sweetohm.net/dist/dotrun/install)"
 ```
 
 **Note:** Some directories are protected, even as *root*, on **MacOSX** (since *El Capitan* release), thus you can't install *dotrun* in */usr/bin* for instance.
