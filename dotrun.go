@@ -132,7 +132,7 @@ func LoadEnv(filename string) error {
 			break
 		}
 		line := strings.TrimSpace(string(bytes))
-		if line[0] == '#' {
+		if len(line) == 0 || line[0] == '#' {
 			continue
 		}
 		index := strings.Index(line, "=")
