@@ -87,7 +87,7 @@ func Execute(shell bool, command string, args ...string) int {
 			command = "cmd"
 		}
 	}
-	cmd := exec.Command(command, args...)
+	cmd := exec.Command(command, args...) // #nosec G204
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
@@ -120,11 +120,11 @@ func ExpandPath(path string) string {
 
 // LoadEnv loads environment in given file
 func LoadEnv(filename string) error {
-	file, err := os.Open(filename)
+	file, err := os.Open(filepath.Clean(filename))
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer file.Close() // #nosec G307
 	reader := bufio.NewReader(file)
 	for {
 		bytes, _, err := reader.ReadLine()
@@ -141,7 +141,9 @@ func LoadEnv(filename string) error {
 		}
 		name := strings.TrimSpace(line[:index])
 		value := strings.TrimSpace(line[index+1:])
-		os.Setenv(name, value)
+		if err = os.Setenv(name, value); err != nil {
+			return fmt.Errorf("setting environment variable '%s': %v", name, err)
+		}
 	}
 	return nil
 }
