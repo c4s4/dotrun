@@ -60,6 +60,14 @@ dotrun -env /etc/foo.env -env /etc/bar.env foo args...
 
 The environment files are evaluated in the order of the command line, so that in previous example variables defined in *bar.env* would overwrite those defined in *foo.env*.
 
+You can delete all environment variables before loading those defined in dotenv files with `-only` option. For instance, to print only environment defined in *.env* file, you could run:
+
+```bash
+dotrun -only -env .env /usr/bin/env
+FOO=SPAM
+BAR=EGGS
+```
+
 ## Shell
 
 Let's say you have following *.env* file:

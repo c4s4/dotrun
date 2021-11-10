@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -18,10 +17,11 @@ var Version = "UNKNOWN"
 
 const (
 	// Help is the command line help
-	Help = `Usage: dotrun [-version] [-env .env] [-shell] command args...
+	Help = `Usage: dotrun [-version] [-env .env] [-shell] [-only] command args...
 -version    Print version and exit
 -env file   Alternative dotenv file (may be repeated to load multiple files)
 -shell      Use to a shell to run command
+-only       Delete all environment variables except those defined in env files
 command     The command to run
 args        The command arguments`
 )
@@ -36,15 +36,10 @@ args        The command arguments`
 // - command to run
 // - command arguments
 // - error if any
-func ParseCommandLine(options []string) (bool, bool, bool, []string, string, []string, error) {
+func ParseCommandLine(options []string) (version bool, help bool, shell bool,
+	only bool, envFiles []string, command string, args []string, err error) {
 	nextOption := true
 	nextEnvFile := false
-	var version bool
-	var help bool
-	var shell bool
-	var envFiles []string
-	var command string
-	var args []string
 	for _, arg := range options {
 		if nextOption {
 			if nextEnvFile {
@@ -57,6 +52,8 @@ func ParseCommandLine(options []string) (bool, bool, bool, []string, string, []s
 					help = true
 				} else if arg == "-shell" {
 					shell = true
+				} else if arg == "-only" {
+					only = true
 				} else if arg == "-env" {
 					nextEnvFile = true
 				} else {
@@ -69,9 +66,9 @@ func ParseCommandLine(options []string) (bool, bool, bool, []string, string, []s
 		}
 	}
 	if !version && !help && command == "" {
-		return false, false, false, nil, "", nil, fmt.Errorf("You must pass command to run on command line")
+		return false, false, false, false, nil, "", nil, fmt.Errorf("You must pass command to run on command line")
 	}
-	return version, help, shell, envFiles, command, args, nil
+	return version, help, shell, only, envFiles, command, args, nil
 }
 
 // Execute runs command with given arguments and return exit value.
@@ -108,16 +105,6 @@ func Execute(shell bool, command string, args ...string) int {
 	return exit
 }
 
-// ExpandPath expands given path wit user home directory
-func ExpandPath(path string) string {
-	usr, _ := user.Current()
-	dir := usr.HomeDir
-	if strings.HasPrefix(path, "~/") {
-		return filepath.Join(dir, path[2:])
-	}
-	return path
-}
-
 // LoadEnv loads environment in given file
 func LoadEnv(filename string) error {
 	file, err := os.Open(filepath.Clean(filename))
@@ -149,7 +136,7 @@ func LoadEnv(filename string) error {
 }
 
 func main() {
-	version, help, shell, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
+	version, help, shell, only, envFiles, command, args, err := ParseCommandLine(os.Args[1:])
 	if err != nil {
 		println(err.Error())
 		os.Exit(1)
@@ -164,6 +151,9 @@ func main() {
 	}
 	if envFiles == nil {
 		envFiles = []string{".env"}
+	}
+	if only {
+		os.Clearenv()
 	}
 	for _, file := range envFiles {
 		err := LoadEnv(file)
