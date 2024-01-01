@@ -11,6 +11,7 @@
 set -e
 
 NAME="dotrun"
+DIST_URL="https://sweetohm.net/dist"
 
 # get OS and ARCH and build binary name
 os=`uname | tr '[:upper:]' '[:lower:]'`
@@ -20,6 +21,8 @@ if [ "$arch" = "i386" ]; then
     arch="386"
 elif [ "$arch" = "x86_64" ]; then
     arch="amd64"
+elif [ "$arch" = "aarch64" ]; then
+    arch="arm64"
 fi
 
 echo "os: ${os}"
@@ -57,7 +60,7 @@ else
 fi
 
 # download binary in /tmp/${NAME} and make it executable
-${command} /tmp/${NAME} https://sweetohm.net/dist/${NAME}/${binary}
+${command} /tmp/${NAME} ${DIST_URL}/${NAME}/${binary}
 chmod +x /tmp/${NAME}
 
 # prompt for installation directory
